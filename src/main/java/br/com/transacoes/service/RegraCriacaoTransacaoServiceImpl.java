@@ -3,50 +3,69 @@ package br.com.transacoes.service;
 import br.com.transacoes.model.RegraCriacaoTransacao;
 import br.com.transacoes.model.RegraCriacaoTransacaoMes;
 import br.com.transacoes.repository.RegraCriacaoTransacaoRepository;
+import br.com.transacoes.service.RegraCriacaoTransacaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarListaValoresAleatoriosEmIntervaloFechado;
+import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarValorAleatorioEmIntervaloFechado;
 
 @Service
 @RequiredArgsConstructor
 public class RegraCriacaoTransacaoServiceImpl implements RegraCriacaoTransacaoService {
 
-    private final GeradorValorAleatorio geradorValorAleatorio;
+    private static final int JANEIRO = 1;
+    private static final int DEZEMBRO = 12;
+    private static final int QTD_MINIMA_TRANSACOES_POR_MES = 1;
+    private static final int QTD_MAXIMA_TRANSACOES_POR_MES = 6;
+    private static final int QTD_MINIMA_MESES_COM_DUPLICIDADE = 3;
+    private static final int QTD_MAXIMA_MESES_COM_DUPLICIDADE = 12;
+
     private final RegraCriacaoTransacaoRepository repository;
 
     @Override
-    public RegraCriacaoTransacao gerarRegraCriacaoTransacao(int idUsuario, int ano) {
-        List<Integer> mesesComDuplicidades = gerarMesesQueDeveraoPossuirDuplicidade();
+    public RegraCriacaoTransacao cadastrarRegraCriacaoTransacao(int idUsuario, int ano) {
         RegraCriacaoTransacao regraCriacaoTransacao = new RegraCriacaoTransacao();
         regraCriacaoTransacao.setIdUsuario(idUsuario);
         regraCriacaoTransacao.setAno(ano);
-
-        List<RegraCriacaoTransacaoMes> regrasDeCriacaoPorMes;
-        regrasDeCriacaoPorMes = gerarRegrasDeCriacaoTransacaoPorMes(regraCriacaoTransacao, mesesComDuplicidades);
-        regraCriacaoTransacao.setRegrasPorMes(regrasDeCriacaoPorMes);
+        regraCriacaoTransacao.setRegrasPorMes(gerarRegrasCriacaoTransacaoPorMes(regraCriacaoTransacao));
 
         return repository.save(regraCriacaoTransacao);
     }
 
-    public List<Integer> gerarMesesQueDeveraoPossuirDuplicidade() {
-        int quantidadeMesesComDuplicidades = geradorValorAleatorio.gerarValorAleatorioEmIntervaloFechado(3, 12);
-        return geradorValorAleatorio.gerarListaValoresAleatoriosDiferentesEmIntervaloFechado(1, 12,
-                                                                                        quantidadeMesesComDuplicidades);
+    private List<Integer> gerarMesesQueDeveraoPossuirDuplicidade() {
+        int qtdDeMesesQueDevemPossuirDuplicidades = getQtdDeMesesQueDevemPossuirDuplicidades();
+        return gerarListaValoresAleatoriosEmIntervaloFechado(JANEIRO, DEZEMBRO, qtdDeMesesQueDevemPossuirDuplicidades);
     }
 
-    public List<RegraCriacaoTransacaoMes> gerarRegrasDeCriacaoTransacaoPorMes(RegraCriacaoTransacao regraCriacaoTransacao, List<Integer> mesesComDuplicidade) {
-        List<RegraCriacaoTransacaoMes> regrasPorMes = new ArrayList<>();
+    private List<RegraCriacaoTransacaoMes> gerarRegrasCriacaoTransacaoPorMes(RegraCriacaoTransacao regraCriacaoTransacao) {
+        List<Integer> mesesQueDeveraoPossuirDuplicidade = gerarMesesQueDeveraoPossuirDuplicidade();
 
-        for (int mes = 1; mes <= 12; mes++) {
-            RegraCriacaoTransacaoMes regraCriacaoTransacaoMes = new RegraCriacaoTransacaoMes();
-            regraCriacaoTransacaoMes.setMes(mes);
-            regraCriacaoTransacaoMes.setRegraCriacaoTransacao(regraCriacaoTransacao);
-            regraCriacaoTransacaoMes.setQuantidadeTransacoes(geradorValorAleatorio.gerarValorAleatorioEmIntervaloFechado(1, 12));
-            regraCriacaoTransacaoMes.setDevePossuirDuplicidade(mesesComDuplicidade.contains(mes));
-            regrasPorMes.add(regraCriacaoTransacaoMes);
-        }
-        return regrasPorMes;
+        return IntStream.rangeClosed(JANEIRO, DEZEMBRO)
+                .mapToObj(mes -> instanciarRegraCriacaoTransacaoMes(mes, regraCriacaoTransacao, mesesQueDeveraoPossuirDuplicidade))
+                .collect(Collectors.toList());
+    }
+
+    private RegraCriacaoTransacaoMes instanciarRegraCriacaoTransacaoMes(int mes,
+                                                                        RegraCriacaoTransacao regraCriacaoTransacao,
+                                                                        List<Integer> mesesQueDeveraoPossuirDuplicidade) {
+        return RegraCriacaoTransacaoMes.builder()
+                .mes(mes)
+                .regraCriacaoTransacao(regraCriacaoTransacao)
+                .quantidadeTransacoes(getQtdDeTransacoesQueDevemSerCriadas())
+                .devePossuirDuplicidade(mesesQueDeveraoPossuirDuplicidade.contains(mes))
+                .build();
+    }
+
+    private int getQtdDeTransacoesQueDevemSerCriadas() {
+        return gerarValorAleatorioEmIntervaloFechado(QTD_MINIMA_TRANSACOES_POR_MES, QTD_MAXIMA_TRANSACOES_POR_MES);
+    }
+
+    private int getQtdDeMesesQueDevemPossuirDuplicidades() {
+        return gerarValorAleatorioEmIntervaloFechado(QTD_MINIMA_MESES_COM_DUPLICIDADE, QTD_MAXIMA_MESES_COM_DUPLICIDADE);
     }
 }

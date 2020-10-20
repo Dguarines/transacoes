@@ -15,7 +15,7 @@ public interface RegraCriacaoTransacaoMesRepository extends CrudRepository<Regra
                 "   regraMes " +
                 "FROM " +
                 "   RegraCriacaoTransacaoMes regraMes " +
-                "   JOIN FETCH regraMes.regraCriacaoTransacao regra " +
+                "   JOIN regraMes.regraCriacaoTransacao regra " +
                 "WHERE " +
                 "   regra.idUsuario = :idUsuario " +
                 "   AND regra.ano = :ano " +

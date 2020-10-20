@@ -1,11 +1,15 @@
 package br.com.transacoes.model;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "regra_criacao_transacao_mes")
 public class RegraCriacaoTransacaoMes {
 

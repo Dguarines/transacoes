@@ -1,23 +1,26 @@
 package br.com.transacoes.service;
 
-import br.com.transacoes.model.RegraCriacaoTransacao;
+import br.com.transacoes.exception.ErroValidacaoException;
 import br.com.transacoes.model.RegraCriacaoTransacaoMes;
 import br.com.transacoes.model.Transacao;
 import br.com.transacoes.repository.RegraCriacaoTransacaoMesRepository;
 import br.com.transacoes.repository.TransacaoRepository;
+import br.com.transacoes.util.ValidadorConjuntoDeDadosUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+
+import static br.com.transacoes.util.ValidadorConjuntoDeDadosUtil.validarConjuntoDeDados;
 
 @Service
 @RequiredArgsConstructor
 public class TransacaoServiceImpl implements TransacaoService {
-
-    private static final int MENOR_VALOR_TRANSACAO = -9999999;
-    private static final int MAIOR_VALOR_TRANSACAO = 9999999;
 
     private final RegraCriacaoTransacaoService regraCriacaoTransacaoService;
     private final RegraCriacaoTransacaoMesRepository regraCriacaoTransacaoMesRepository;
@@ -26,32 +29,30 @@ public class TransacaoServiceImpl implements TransacaoService {
 
     @Override
     @Cacheable(value = "transacoes")
-    public Iterable<Transacao> getTransacoesPorUsuarioAnoMes(int idUsuario, int ano, int mes) {
-        Iterable<Transacao> transacoes = transacaoRepository.findByIdUsuarioAndAnoAndMes(idUsuario, ano, mes);
+    public Iterable<Transacao> buscarTransacoesPorUsuarioAnoMes(int idUsuario, int ano, int mes) {
+        validarConjuntoDeDados(idUsuario, ano, mes);
 
-        if (!transacoes.iterator().hasNext()) {
-            Optional<RegraCriacaoTransacaoMes> optRegraCriacaoTransacaoMes;
-            optRegraCriacaoTransacaoMes = carregarRegraParaCriarTransacao(idUsuario, ano, mes);
-
-            RegraCriacaoTransacaoMes regraCriacaoTransacaoMes = null;
-
-            if (!optRegraCriacaoTransacaoMes.isPresent()) {
-                RegraCriacaoTransacao regraCriacaoTransacao;
-                regraCriacaoTransacao = regraCriacaoTransacaoService.gerarRegraCriacaoTransacao(idUsuario, ano);
-                regraCriacaoTransacaoMes = regraCriacaoTransacao.getRegraPorMes(mes);
-            }
-            else {
-                regraCriacaoTransacaoMes = optRegraCriacaoTransacaoMes.get();
-            }
-            transacoes = geradorTransacao.gerarTransacoesAPartirDeUmaRegraEspecifica(regraCriacaoTransacaoMes);
-        }
-
-        return transacoes;
+        return transacaoRepository.findByIdUsuarioAndAnoAndMes(idUsuario, ano, mes)
+                                  .orElse(cadastrarTransacoes(idUsuario, ano, mes));
     }
 
-    private Optional<RegraCriacaoTransacaoMes> carregarRegraParaCriarTransacao(int idUsuario, int ano, int mes) {
-        Optional<RegraCriacaoTransacaoMes> optRegraCriacaoTransacaoMes;
-        optRegraCriacaoTransacaoMes = regraCriacaoTransacaoMesRepository.findByUsuarioAnoMes(idUsuario, ano, mes);
-        return optRegraCriacaoTransacaoMes;
+    private Iterable<Transacao> cadastrarTransacoes(int idUsuario, int ano, int mes) {
+        Optional<RegraCriacaoTransacaoMes> regraCriacaoTransacaoMes = carregarRegraCriacaoTransacaoMes(idUsuario, ano, mes);
+
+        if (regraCriacaoTransacaoMes.isPresent()) {
+            return geradorTransacao.gerarTransacoesAPartirDeUmaRegraEspecifica(regraCriacaoTransacaoMes.get());
+        }
+        else {
+            return geradorTransacao.gerarTransacoesAPartirDeUmaRegraEspecifica(cadastrarRegraCriacaoTransacao(idUsuario, ano, mes));
+        }
+    }
+
+    private Optional<RegraCriacaoTransacaoMes> carregarRegraCriacaoTransacaoMes(int idUsuario, int ano, int mes) {
+        return regraCriacaoTransacaoMesRepository.findByUsuarioAnoMes(idUsuario, ano, mes);
+    }
+
+    private RegraCriacaoTransacaoMes cadastrarRegraCriacaoTransacao(int idUsuario, int ano, int mes) {
+        return regraCriacaoTransacaoService.cadastrarRegraCriacaoTransacao(idUsuario, ano)
+                                           .getRegraPorMes(mes);
     }
 }

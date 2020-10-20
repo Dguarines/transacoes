@@ -1,17 +1,13 @@
-package br.com.transacoes.service;
-
-import org.springframework.stereotype.Service;
+package br.com.transacoes.util;
 
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Service
-public class GeradorDataAleatoriaImpl implements GeradorDataAleatoria {
+public class GeradorDataAleatoriaUtil {
 
-    @Override
-    public LocalDate gerarDataAleatoriaEmAnoMesEspecifico(int ano, int mes) {
-        LocalDate inicio = gerarDataInicioDoIntervalo(ano, mes);
-        LocalDate fim = gerarDataFimDoIntervalo(ano, mes);
+    public static LocalDate gerarDataAleatoriaEmAnoMesEspecifico(int ano, int mes) {
+        LocalDate inicio = getDataInicioDoIntervalo(ano, mes);
+        LocalDate fim = getDataFimDoIntervalo(ano, mes);
 
         return between(inicio, fim);
     }
@@ -22,7 +18,7 @@ public class GeradorDataAleatoriaImpl implements GeradorDataAleatoria {
      * @param endExclusive
      * @return
      */
-    private LocalDate between(LocalDate startInclusive, LocalDate endExclusive) {
+    private static LocalDate between(LocalDate startInclusive, LocalDate endExclusive) {
         long startEpochDay = startInclusive.toEpochDay();
         long endEpochDay = endExclusive.toEpochDay();
         long randomDay = ThreadLocalRandom
@@ -32,11 +28,11 @@ public class GeradorDataAleatoriaImpl implements GeradorDataAleatoria {
         return LocalDate.ofEpochDay(randomDay);
     }
 
-    private LocalDate gerarDataInicioDoIntervalo(int ano, int mes) {
+    private static LocalDate getDataInicioDoIntervalo(int ano, int mes) {
         return LocalDate.of(ano, mes, 1);
     }
 
-    private LocalDate gerarDataFimDoIntervalo(int ano, int mes) {
+    private static LocalDate getDataFimDoIntervalo(int ano, int mes) {
         return LocalDate.of(ano, mes, 1)
                         .plusMonths(1);
     }

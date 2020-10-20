@@ -4,5 +4,5 @@ import br.com.transacoes.model.Transacao;
 
 public interface TransacaoService {
 
-    Iterable<Transacao> getTransacoesPorUsuarioAnoMes(int idUsuario, int ano, int mes);
+    Iterable<Transacao> buscarTransacoesPorUsuarioAnoMes(int idUsuario, int ano, int mes);
 }

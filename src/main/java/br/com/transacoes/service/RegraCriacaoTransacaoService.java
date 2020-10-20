@@ -4,5 +4,5 @@ import br.com.transacoes.model.RegraCriacaoTransacao;
 
 public interface RegraCriacaoTransacaoService {
 
-    RegraCriacaoTransacao gerarRegraCriacaoTransacao(int idUsuario, int ano);
+    RegraCriacaoTransacao cadastrarRegraCriacaoTransacao(int idUsuario, int ano);
 }

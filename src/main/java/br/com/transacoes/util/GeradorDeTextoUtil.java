@@ -1,15 +1,15 @@
-package br.com.transacoes.service;
-
-import org.springframework.stereotype.Service;
+package br.com.transacoes.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarValorAleatorioEmIntervaloFechado;
+import static java.util.Arrays.asList;
+
 /**
- * Me baseei na ideia desse link: https://gist.github.com/sepehr/3371339
+ * Fonte: https://gist.github.com/sepehr/3371339
  */
-@Service
-public class GeradorTextoAleatorioLegivelImpl implements GeradorTextoAleatorioLegivel {
+public class GeradorDeTextoUtil {
 
     private static final String VOGAIS[] = new String[]{"a", "e", "i", "o", "u"};
     private static final String CONSOANTES_SEM_LETRA_Q[] = new String[]{"b", "c", "d", "f", "g",
@@ -17,6 +17,7 @@ public class GeradorTextoAleatorioLegivelImpl implements GeradorTextoAleatorioLe
                                                             "n", "p", "r", "s",
                                                             "t", "v", "x", "z"};
 
+    private static final String[] SILABAS_QUE_QUI = new String[]{"que", "qui"};
     private static final List<String> SILABAS = gerarSilabas();
     private static final String ESPACO = " ";
     private static final int TAMANHO_MAX_SILABA = 3;
@@ -24,27 +25,26 @@ public class GeradorTextoAleatorioLegivelImpl implements GeradorTextoAleatorioLe
     private static final int TAMANHO_MAX_PALAVRA = 14;
 
 
-    @Override
-    public String gerarTextoAleatorioLegivel(int tamanhoMinimo, int tamanhoMaximo) {
-        StringBuilder resultado = new StringBuilder();
-        int tamanho = (int) (tamanhoMinimo + Math.random() * (tamanhoMaximo - tamanhoMinimo));
+    public static String gerarTextoAleatorioLegivel(int tamanhoMinimo, int tamanhoMaximo) {
+        int tamanhoDoTexto = gerarValorAleatorioEmIntervaloFechado(tamanhoMinimo, tamanhoMaximo);
+        StringBuilder texto = new StringBuilder();
 
-        String palavra = getPalavra();
-        resultado.append(palavra);
+        String palavra = gerarPalavraAleatoria();
+        texto.append(palavra);
 
-        if (resultado.length() < tamanho) {
-            palavra = getPalavra();
+        if (texto.length() < tamanhoDoTexto) {
+            palavra = gerarPalavraAleatoria();
 
-            while (resultado.length() + ESPACO.length() + palavra.length() <= tamanho) {
-                resultado.append(ESPACO).append(palavra);
-                palavra = getPalavra();
+            while (texto.length() + ESPACO.length() + palavra.length() <= tamanhoDoTexto) {
+                texto.append(ESPACO).append(palavra);
+                palavra = gerarPalavraAleatoria();
             }
         }
 
-        return resultado.toString();
+        return texto.toString();
     }
 
-    private String getPalavra() {
+    private static String gerarPalavraAleatoria() {
         int tamanho = (int) (TAMANHO_MIN_PALAVRA + Math.random() * (TAMANHO_MAX_PALAVRA - TAMANHO_MIN_PALAVRA));
         StringBuilder palavra = new StringBuilder();
 
@@ -59,8 +59,7 @@ public class GeradorTextoAleatorioLegivelImpl implements GeradorTextoAleatorioLe
 
     private static List<String> gerarSilabas() {
         List<String> silabas = new ArrayList<>();
-        silabas.add("que");
-        silabas.add("qui");
+        silabas.addAll(asList(SILABAS_QUE_QUI));
 
         for (int i = 0; i < CONSOANTES_SEM_LETRA_Q.length; i++) {
             for (int j = 0; j < VOGAIS.length; j++) {
