@@ -73,7 +73,7 @@ public class GeradorTransacaoImpl implements GeradorTransacao {
                 .idUsuario(regraCriacaoTransacao.getIdUsuario())
                 .ano(regraCriacaoTransacao.getAno())
                 .mes(regraCriacaoTransacaoMes.getMes())
-                .descricao(gerarTextoAleatorioLegivel(TAMANHO_MINIMO_DESCRICAO, TAMANHO_MAXIMO_DESCRICAO))
+                .descricao(gerarTextoAleatorioLegivel())
                 .valor(gerarValorAleatorioEmIntervaloFechado(VALOR_MINIMO_TRANSACAO, VALOR_MAXIMO_TRANSACAO))
                 .data(getDataAleatoriaParaNovaTransacao(regraCriacaoTransacaoMes, regraCriacaoTransacao))
                 .build();

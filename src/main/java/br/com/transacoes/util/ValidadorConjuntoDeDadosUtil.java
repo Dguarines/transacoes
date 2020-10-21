@@ -9,11 +9,11 @@ import static java.lang.String.format;
 
 public class ValidadorConjuntoDeDadosUtil {
 
-    private static final int MENOR_ID_USUARIO = 1000;
-    private static final int MAIOR_ID_USUARIO = 100000000;
-    private static final int MENOR_ANO = 1900;
-    private static final int MENOR_MES = 1;
-    private static final int MAIOR_MES = 12;
+    protected static final int MENOR_ID_USUARIO = 1000;
+    protected static final int MAIOR_ID_USUARIO = 100000000;
+    protected static final int MENOR_ANO = 1900;
+    protected static final int MENOR_MES = 1;
+    protected static final int MAIOR_MES = 12;
 
     public static void validarConjuntoDeDados(int idUsuario, int ano, int mes) {
         Map<String, String> erros = new HashMap<>();

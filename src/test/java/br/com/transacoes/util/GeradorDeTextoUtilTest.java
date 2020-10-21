@@ -13,7 +13,7 @@ public class GeradorDeTextoUtilTest {
         int tamanhoMinimo = 10;
         int tamanhoMaximo = 60;
 
-        String textoGerado = GeradorDeTextoUtil.gerarTextoAleatorioLegivel(tamanhoMinimo, tamanhoMaximo);
+        String textoGerado = GeradorDeTextoUtil.gerarTextoAleatorioLegivel();
         Assertions.assertThat(textoGerado).hasSizeBetween(tamanhoMinimo, tamanhoMaximo);
     }
 }
