@@ -4,24 +4,19 @@ import br.com.transacoes.model.RegraCriacaoTransacao;
 import br.com.transacoes.model.RegraCriacaoTransacaoMes;
 import br.com.transacoes.model.Transacao;
 import br.com.transacoes.repository.TransacaoRepository;
-import br.com.transacoes.service.GeradorTransacao;
-import br.com.transacoes.util.DuplicadorDeTransacoesUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static br.com.transacoes.util.DuplicadorDeTransacoesUtil.duplicarTransacao;
-import static br.com.transacoes.util.GeradorDeTextoUtil.gerarTextoAleatorioLegivel;
 import static br.com.transacoes.util.GeradorDataAleatoriaUtil.gerarDataAleatoriaEmAnoMesEspecifico;
+import static br.com.transacoes.util.GeradorDeTextoUtil.gerarTextoAleatorioLegivel;
 import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarListaValoresAleatoriosEmIntervaloFechado;
 import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarValorAleatorioEmIntervaloFechado;
 
@@ -29,8 +24,6 @@ import static br.com.transacoes.util.GeradorValorAleatorioUtil.gerarValorAleator
 @RequiredArgsConstructor
 public class GeradorTransacaoImpl implements GeradorTransacao {
 
-    private static final int TAMANHO_MINIMO_DESCRICAO = 10;
-    private static final int TAMANHO_MAXIMO_DESCRICAO = 60;
     private static final int VALOR_MINIMO_TRANSACAO = -9999999;
     private static final int VALOR_MAXIMO_TRANSACAO = 9999999;
 
