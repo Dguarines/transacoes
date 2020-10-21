@@ -93,6 +93,6 @@ Pré requisitos:
 
 No terminal, dentro da pasta raiz do projeto:
 ```
- -> docker build -t transacoes/transacoes-app .
- -> docker run -p 8080:8080 transacoes/transacoes-app
+ -> sudo docker build -t transacoes/transacoes-app .
+ -> sudo docker run -p 8080:8080 transacoes/transacoes-app
 ```
